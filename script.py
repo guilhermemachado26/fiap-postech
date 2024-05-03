@@ -9,6 +9,25 @@ O dataset gerado é salvo em um arquivo CSV chamado dataset.csv.
 import argparse
 import numpy as np
 import pandas as pd
+import random
+
+REGIOES = (
+    "Norte",
+    "Nordeste",
+    "Centro-Oeste",
+    "Sul",
+    "Sudeste",
+)
+
+GENEROS = (
+    "Masculino",
+    "Feminino",
+)
+
+FUMANTES = (
+    "Não",
+    "Sim",
+)
 
 
 def get_base_value_for_age(idade):
@@ -53,24 +72,24 @@ def get_region_coef(regiao):
     """
     Retorna o coeficiente de ajuste dos encargos de acordo com a região.
     """
-    if 0 <= regiao <= 2:  # norte nordeste
+    if regiao in ("Norte", "Nordeste"):
         return 1.15
-    if regiao == 3:  # centro-oeste
+    if regiao == "Centro-Oeste":
         return 1.10
-    else:  # sul sudest
+    else:
         return 1.05
 
 
 def gerador(size, seed):
+    random.seed(seed)
     np.random.seed(seed)
-    # idade	gênero	imc	filhos	fumante	região	encargos
 
     idade = np.random.randint(18, 75, size)
-    genero = np.random.randint(0, 2, size)
     imc = np.random.randint(15, 45, size)
     filhos = np.random.randint(0, 5, size)
-    fumante = np.random.randint(0, 2, size)
-    regiao = np.random.randint(0, 6, size)
+    genero = random.choices(GENEROS, k=size)
+    fumante = random.choices(FUMANTES, k=size)
+    regiao = random.choices(REGIOES, k=size)
     encargos = np.zeros(size)
 
     for i in range(size):
@@ -79,14 +98,14 @@ def gerador(size, seed):
         encargos[i] = np.random.randint(valor_faixa * 0.9, valor_faixa * 1.15)
 
         # Genero
-        if genero[i] == 1:
+        if genero[i] == "Feminino":
             encargos[i] = encargos[i] * 1.1085
 
         # IMC
         encargos[i] *= get_imc_coef(imc[i])
 
         # Fumante
-        if fumante[i] == 1:
+        if fumante[i] == "Sim":
             encargos[i] *= 1.1260
 
         # Região
@@ -111,9 +130,13 @@ def gerador(size, seed):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Gerador de dados aleatórios para fins de teste.")
+    parser = argparse.ArgumentParser(
+        description="Gerador de dados aleatórios para fins de teste."
+    )
     parser.add_argument("size", type=int, help="Tamanho dos dados a serem gerados.")
-    parser.add_argument("seed", type=int, help="Semente para geração de números aleatórios.")
+    parser.add_argument(
+        "seed", type=int, help="Semente para geração de números aleatórios."
+    )
 
     args = parser.parse_args()
 
