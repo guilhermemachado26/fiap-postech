@@ -95,7 +95,7 @@ def gerador(size, seed):
     for i in range(size):
         # Idade
         valor_faixa = get_base_value_for_age(idade[i])
-        encargos[i] = np.random.randint(valor_faixa * 0.9, valor_faixa * 1.15)
+        encargos[i] = np.random.randint(valor_faixa * 0.9, valor_faixa * 1.05)
 
         # Genero
         if genero[i] == "Feminino":
@@ -106,7 +106,7 @@ def gerador(size, seed):
 
         # Fumante
         if fumante[i] == "Sim":
-            encargos[i] *= 1.1260
+            encargos[i] *= 1.460
 
         # Região
         encargos[i] = encargos[i] * get_region_coef(regiao[i])
