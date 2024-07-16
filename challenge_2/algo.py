@@ -8,7 +8,7 @@ The maze exit is represented by the number 2 in the maze map.
 """
 
 import random
-
+from game import simulate_game
 
 class Player:
     def __init__(self, directions=[]):
@@ -148,6 +148,7 @@ class GenMaze:
         best_player = max(self.players, key=lambda x: x.score)
 
         print(best_player)
+        simulate_game(best_player.directions)
         return best_player
 
 
