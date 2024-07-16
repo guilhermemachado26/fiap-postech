@@ -1,18 +1,18 @@
 import random
 from game import simulate_game
 from collections import deque
-from shared_map import map
+from shared_map import map, target
 
 random.seed(42)
 
 # Genetic algorithm definitions
 num_individuals = 100
-num_steps       = 100
-num_generations = 1000
+num_steps       = 200
+num_generations = 2000
 mutation_chance = 0.99
-distance_weight = 0.99  # between 0 and 1 
+distance_weight = 0.9  # between 0 and 1 
 directions = ['RIGHT', 'DOWN', 'LEFT', 'UP']
-target = (8, 11)
+
 
 # Mapping of directions to movements
 movements = {
@@ -37,7 +37,7 @@ class Player:
             Positon: {self.position}      
             Steps: {self.steps}           
             Directions:
-            {self.directions} 
+            
             """
 
     def calculate_fitness(self):
@@ -51,7 +51,7 @@ class Player:
 
             # Hit the wall
             if map[x][y] == 1:
-               # self.score -= 10
+                self.score -= 100
                 break
 
             # Won the game
