@@ -69,7 +69,7 @@ class Player:
         # Subtract distance from score to give direction
         self.score -= distance * distance_weight
         
-
+# calculo de distancia BFS 
 def calculate_distance(start, goal):
     queue = deque([(start, 0)])
     visited = set()
@@ -89,7 +89,7 @@ def calculate_distance(start, goal):
     return float('-inf')  # Return -inf if no path
 
 '''
- Create a player with 100 commands
+ Create a player with 'num_steps' commands
 '''
 def create_individual():
     return Player([random.choice(directions) for _ in range(num_steps)])
