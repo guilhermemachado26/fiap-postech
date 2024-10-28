@@ -1,0 +1,8 @@
+opencv-python-headless
+deepface
+tf-keras
+tqdm
+deepface
+cmake
+dlib
+face-recognition
