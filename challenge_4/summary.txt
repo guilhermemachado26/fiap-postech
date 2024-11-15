@@ -1,0 +1,22 @@
+Total Frames Analyzed: 3326
+Total Anomalies Detected: 3325
+
+Emotion Summary:
+sad: 869
+fear: 412
+happy: 1052
+angry: 124
+neutral: 843
+surprise: 116
+disgust: 1
+
+Arm Movements Summary:
+Left Arm Down: 2339
+Right Arm Down: 2250
+Right Arm Up: 453
+Left Arm Up: 364
+
+Activities Summary:
+Walking: 949
+Dancing: 132
+Hand detected: 1674
