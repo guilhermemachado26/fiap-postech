@@ -8,6 +8,7 @@ import numpy as np
 
 from deepface import DeepFace
 from tqdm import tqdm
+from scipy.spatial.distance import euclidean
 
 
 # Initialize MediaPipe for gesture detection
@@ -50,9 +51,34 @@ class VideoAnalyzer:
             self.emotion_counter[dominant_emotion] += 1
             cv2.putText(frame, f"{dominant_emotion} | Gender: {face['gender']}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+    def detect_handshake(self, hands, frame):
+        """Detect handshake gesture using MediaPipe Hands."""
+        handshake_detected = False
+        hand_landmarks_list = []
+        results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                hand_landmarks_list.append(hand_landmarks)
+
+            # Check if at least two hands are detected
+            if len(hand_landmarks_list) >= 2:
+                # Compute distance between wrists of two hands
+                left_hand = hand_landmarks_list[0].landmark[mp_hands.HandLandmark.WRIST]
+                right_hand = hand_landmarks_list[1].landmark[mp_hands.HandLandmark.WRIST]
+
+                distance = euclidean((left_hand.x, left_hand.y), (right_hand.x, right_hand.y))
+
+                # Define handshake threshold for proximity
+                if distance < 0.1:  # Adjust this threshold for your scenario
+                    handshake_detected = True
+
+        return handshake_detected
+
     def analyze_gestures(self, frame, hand_detector, pose_detector, prev_pose_landmarks, frame_count):
         gesture_data = []
         hands = hand_detector.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        handshake_detected = self.detect_handshake(hand_detector, frame)
 
         # Detect hand gestures
         if hands.multi_hand_landmarks:
@@ -105,6 +131,10 @@ class VideoAnalyzer:
             if (left_arm_movement > 0.05 and right_arm_movement > 0.05) and (left_leg_movement > 0.02 and right_leg_movement > 0.02):
                 pose_data.append("Dancing")
 
+            # Add handshake detection result
+            if handshake_detected:
+                pose_data.append("Handshake")
+
             # Update previous landmarks for the next frame
             prev_pose_landmarks = landmarks
 
@@ -114,7 +144,7 @@ class VideoAnalyzer:
         for pose in pose_data:
             if "Arm" in pose:
                 self.arm_movement_counter[pose] += 1
-            elif pose in ["Walking", "Dancing"]:
+            elif pose in ["Walking", "Dancing", "Handshake"]:
                 self.activity_counter[pose] += 1
 
         # Display detected gestures on the frame
