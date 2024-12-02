@@ -65,9 +65,13 @@ class VideoAnalyzer:
             if len(hand_landmarks_list) >= 2:
                 # Compute distance between wrists of two hands
                 left_hand = hand_landmarks_list[0].landmark[mp_hands.HandLandmark.WRIST]
-                right_hand = hand_landmarks_list[1].landmark[mp_hands.HandLandmark.WRIST]
+                right_hand = hand_landmarks_list[1].landmark[
+                    mp_hands.HandLandmark.WRIST
+                ]
 
-                distance = euclidean((left_hand.x, left_hand.y), (right_hand.x, right_hand.y))
+                distance = euclidean(
+                    (left_hand.x, left_hand.y), (right_hand.x, right_hand.y)
+                )
 
                 # Define handshake threshold for proximity
                 if distance < 0.1:  # Adjust this threshold for your scenario
@@ -75,7 +79,9 @@ class VideoAnalyzer:
 
         return handshake_detected
 
-    def analyze_gestures(self, frame, hand_detector, pose_detector, prev_pose_landmarks, frame_count):
+    def analyze_gestures(
+        self, frame, hand_detector, pose_detector, prev_pose_landmarks, frame_count
+    ):
         gesture_data = []
         hands = hand_detector.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         handshake_detected = self.detect_handshake(hand_detector, frame)
@@ -83,7 +89,9 @@ class VideoAnalyzer:
         # Detect hand gestures
         if hands.multi_hand_landmarks:
             for hand_landmarks in hands.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(
+                    frame, hand_landmarks, mp_hands.HAND_CONNECTIONS
+                )
                 gesture_data.append("Hand detected")
 
         # Detect pose for specific gestures (arm up, arm down, walking, dancing)
@@ -93,13 +101,25 @@ class VideoAnalyzer:
             landmarks = pose.pose_landmarks.landmark
 
             # Arm up/down detection
-            if landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y < landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y:
+            if (
+                landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y
+                < landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y
+            ):
                 pose_data.append("Left Arm Up")
-            if landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y > landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y:
+            if (
+                landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y
+                > landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y
+            ):
                 pose_data.append("Left Arm Down")
-            if landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y < landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y:
+            if (
+                landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y
+                < landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y
+            ):
                 pose_data.append("Right Arm Up")
-            if landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y > landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y:
+            if (
+                landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y
+                > landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y
+            ):
                 pose_data.append("Right Arm Down")
 
             # Initialize ankle movement to 0 if no previous landmarks are available
@@ -108,19 +128,31 @@ class VideoAnalyzer:
 
             # Walking detection based on ankle movement
             if prev_pose_landmarks is not None:
-                left_ankle_movement = abs(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE].y - prev_pose_landmarks[mp_pose.PoseLandmark.LEFT_ANKLE].y)
-                right_ankle_movement = abs(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE].y - prev_pose_landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE].y)
+                left_ankle_movement = abs(
+                    landmarks[mp_pose.PoseLandmark.LEFT_ANKLE].y
+                    - prev_pose_landmarks[mp_pose.PoseLandmark.LEFT_ANKLE].y
+                )
+                right_ankle_movement = abs(
+                    landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE].y
+                    - prev_pose_landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE].y
+                )
                 if left_ankle_movement > 0.02 or right_ankle_movement > 0.02:
                     pose_data.append("Walking")
 
             # Dancing detection based on simultaneous arm and leg movements
             left_arm_movement = (
-                abs(landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y - prev_pose_landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y)
+                abs(
+                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y
+                    - prev_pose_landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y
+                )
                 if prev_pose_landmarks
                 else 0
             )
             right_arm_movement = (
-                abs(landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y - prev_pose_landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y)
+                abs(
+                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y
+                    - prev_pose_landmarks[mp_pose.PoseLandmark.RIGHT_WRIST].y
+                )
                 if prev_pose_landmarks
                 else 0
             )
@@ -128,7 +160,9 @@ class VideoAnalyzer:
             right_leg_movement = right_ankle_movement
 
             # Thresholds for detecting dancing (simultaneous arm and leg movements)
-            if (left_arm_movement > 0.05 and right_arm_movement > 0.05) and (left_leg_movement > 0.02 and right_leg_movement > 0.02):
+            if (left_arm_movement > 0.05 and right_arm_movement > 0.05) and (
+                left_leg_movement > 0.02 and right_leg_movement > 0.02
+            ):
                 pose_data.append("Dancing")
 
             # Add handshake detection result
@@ -162,7 +196,48 @@ class VideoAnalyzer:
 
         if diff_score > threshold:
             self.total_anomalies += 1
-            cv2.putText(curr_frame, "Anomaly: Abrupt Movement", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            cv2.putText(
+                curr_frame,
+                "Anomaly: Abrupt Movement",
+                (10, 60),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 255, 0),
+                2,
+            )
+
+    def print_stats(self, frame):
+        y_index = 30
+
+        # Configurações do texto
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1
+        color = (0, 0, 0)
+        thickness = 2
+
+        for emotion, count in self.emotion_counter.items():
+            cv2.putText(
+                frame,
+                f"{emotion}: {count}",
+                (10, y_index),
+                font,
+                font_scale,
+                color,
+                thickness,
+            )
+            y_index += 30
+
+        for mov, count in self.arm_movement_counter.items():
+            cv2.putText(
+                frame,
+                f"{mov}: {count}",
+                (10, y_index),
+                font,
+                font_scale,
+                color,
+                thickness,
+            )
+            y_index += 30
 
     def analyze_video(self, video_path, output_path, summary_path):
         cap = cv2.VideoCapture(video_path)
@@ -177,7 +252,7 @@ class VideoAnalyzer:
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-        frame_skip = 10
+        frame_skip = 30
         prev_frame = None
         prev_pose_landmarks = None
 
@@ -190,10 +265,17 @@ class VideoAnalyzer:
                 if frame_count % frame_skip == 0:
                     self.analyze_abrupt_movement(prev_frame, frame)
                     self.analyze_face_emotions(frame)
-                    self.analyze_gestures(frame, hand_detector, pose_detector, prev_pose_landmarks, frame_count)
+                    self.analyze_gestures(
+                        frame,
+                        hand_detector,
+                        pose_detector,
+                        prev_pose_landmarks,
+                        frame_count,
+                    )
 
                     prev_frame = frame
 
+                self.print_stats(frame)
                 out.write(frame)
 
         cap.release()
