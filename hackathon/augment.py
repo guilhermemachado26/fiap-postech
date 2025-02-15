@@ -22,10 +22,6 @@ datagen = ImageDataGenerator(
 for filename in os.listdir(input_folder):
     img_path = os.path.join(input_folder, filename)
 
-    img = cv2.imread(img_path)
-    if img is None:
-        continue
-
     img = cv2.resize(img, (224, 224))
     img_array = np.expand_dims(img, axis=0)
 
